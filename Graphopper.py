@@ -1,13 +1,29 @@
 import requests
 import urllib.parse
+import json
 
 
 route_url = "https://graphhopper.com/api/1/route?"
-key = "ffe27eea-ab87-4354-8df9-d6769f633671" 
+
 #Ayn Lorebelle E. Cavan
 #Mary Jasmin P. Ompad 
 
+def get_api_key_graphopper():
+    with open("GRAPHOPPER_API_KEY.txt", "r") as file:
+        return file.read().strip()
+
+def get_api_key_openrouter():
+    with open("OPENROUTER_API_KEY.txt", "r") as file:
+        return file.read().strip()
+
+
+
+key = get_api_key_graphopper()
+OPENROUTER_API_KEY = get_api_key_openrouter()
+output = ""
+
 def geocoding (location, key):
+
     while location == "":
         location = input("Enter the location again: ")
 
@@ -90,24 +106,45 @@ while True:
         paths_url = route_url + urllib.parse.urlencode({"key":key, "vehicle":vehicle}) + op + dp
         paths_status = requests.get(paths_url).status_code
         paths_data = requests.get(paths_url).json()
-        print("Routing API Status: " + str(paths_status) + "\nRouting API URL:\n" + paths_url)
-        print("=================================================")
-        print("Directions from " + orig[3] + " to " + dest[3] + " by " + vehicle)
-        print("=================================================")
+
+        output += "Routing API Status: " + str(paths_status) + "\nRouting API URL:\n" + paths_url + "\n"
+        output +="=================================================\n"
+        output += "Directions from " + orig[3] + " to " + dest[3] + " by " + vehicle + "\n"
+        output +="=================================================\n"
         if paths_status == 200:
             miles = (paths_data["paths"][0]["distance"])/1000/1.61
             km = (paths_data["paths"][0]["distance"])/1000
             sec = int(paths_data["paths"][0]["time"]/1000%60)
             min = int(paths_data["paths"][0]["time"]/1000/60%60)
             hr = int(paths_data["paths"][0]["time"]/1000/60/60)
-            print("Distance Traveled: {0:.1f} miles / {1:.1f} km".format(miles, km))
-            print("Trip Duration: {0:02d}:{1:02d}:{2:02d}".format(hr, min, sec))
-            print("=================================================")
+            output +="Distance Traveled: {0:.1f} miles / {1:.1f} km".format(miles, km) + "\n"
+            output +="Trip Duration: {0:02d}:{1:02d}:{2:02d}".format(hr, min, sec) + "\n"
+            output +="=================================================\n"
             for each in range(len(paths_data["paths"][0]["instructions"])):
                 path = paths_data["paths"][0]["instructions"][each]["text"]
                 distance = paths_data["paths"][0]["instructions"][each]["distance"]
-                print("{0} ( {1:.1f} km / {2:.1f} miles )".format(path, distance/1000,distance/1000/1.61))
-            print("=============================================")
+                output +="{0} ( {1:.1f} km / {2:.1f} miles )\n".format(path, distance/1000,distance/1000/1.61)
+            output +="=============================================\n"
         else:
-            print("Error message: " + paths_data["message"])
-            print("*************************************************")
+            output += "Error message: " + paths_data["message"] + "\n"
+            output +="*************************************************\n"
+    
+    response = requests.post(
+    url="https://openrouter.ai/api/v1/chat/completions",
+    headers={
+        "Authorization": "Bearer " + OPENROUTER_API_KEY
+    },
+    data=json.dumps({
+        "model": "openai/gpt-4o-mini",
+        "messages": [
+        {
+            "role": "user",
+            "content": output + ". Summarize the output, explain in simple terms, and provide insights on the results. Keep the output smaller and no asterisks or equal signs."
+        }
+        ]
+    })
+    )
+
+    print(response.json()["choices"][0]["message"]["content"])
+
+    
