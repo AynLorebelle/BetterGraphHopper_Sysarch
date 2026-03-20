@@ -7,6 +7,7 @@ route_url = "https://graphhopper.com/api/1/route?"
 
 #Ayn Lorebelle E. Cavan
 #Mary Jasmin P. Ompad 
+# John Carlo L. Borgueta
 
 def get_api_key_graphopper():
     with open("GRAPHOPPER_API_KEY.txt", "r") as file:
