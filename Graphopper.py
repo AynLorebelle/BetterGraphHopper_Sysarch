@@ -5,6 +5,7 @@ import urllib.parse
 route_url = "https://graphhopper.com/api/1/route?"
 key = "ffe27eea-ab87-4354-8df9-d6769f633671" 
 #Ayn Lorebelle E. Cavan
+#Mary Jasmin P. Ompad 
 
 def geocoding (location, key):
     while location == "":
@@ -50,13 +51,21 @@ def geocoding (location, key):
     return json_status,lat,lng,new_loc
 
 while True:
-    print("\n+++++++++++++++++++++++++++++++++++++++++++++")
-    print("Vehicle profiles available on Graphhopper:")
-    print("+++++++++++++++++++++++++++++++++++++++++++++")
-    print("car, bike, foot")
-    print("+++++++++++++++++++++++++++++++++++++++++++++")
-    profile=["car", "bike", "foot"]
-    vehicle = input("Enter a vehicle profile from the list above: ")
+    print("\n" + "="*50)
+    print("{:^50}".format("GRAPHHOPPER VEHICLE PROFILES"))
+    print("="*50)
+
+    print("\nAvailable Options:\n")
+    print("  [1] car")
+    print("  [2] bike")
+    print("  [3] foot")
+
+    print("\n" + "-"*50)
+    print("Type the name or number of your choice")
+    print("-"*50 + "\n")
+
+    profile = ["car", "bike", "foot"]
+    vehicle = input("Enter vehicle: ")
     if vehicle == "quit" or vehicle == "q":
         break
     elif vehicle in profile:
